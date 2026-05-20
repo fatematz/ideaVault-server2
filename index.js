@@ -132,6 +132,89 @@ app.put('/ideas/:id', async (req, res) => {
 
 
 
+app.patch('/comments/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { text } = req.body; 
+
+        if (!text || !text.trim()) {
+            return res.status(400).json({ message: "Text is required" });
+        }
+
+        const result = await commentsCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { text: text } }
+        );
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true, message: "Comment updated successfully" });
+        } else {
+            res.status(404).json({ success: false, message: "Comment not found" });
+        }
+    } catch (error) {
+        console.error("Error updating comment:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+
+
+app.get('/trending-ideas', async (req, res) => {
+    try {
+        const userIdeas = await addIdeaCollection.find().sort({ _id: -1 }).toArray();
+        const fakeIdeas = await ideasCollection.find().toArray();
+        
+        const combinedIdeas = [...userIdeas, ...fakeIdeas];
+
+        const trendingResult = combinedIdeas.slice(-6).reverse(); 
+        
+        res.send(trendingResult);
+    } catch (error) {
+        res.status(500).send({ message: "Error fetching trending ideas" });
+    }
+});
+
+
+app.get('/all-ideas', async (req, res) => {
+    try {
+        const userEmail = req.query.email;
+
+        const addIdeaData = await addIdeaCollection.find().sort({ _id: -1 }).toArray();
+        const fakeIdeasData = await ideasCollection.find().toArray();
+        
+        const allData = [...addIdeaData, ...fakeIdeasData];
+
+        const filteredIdeas = allData.filter(idea => {
+            const isManualFixedData = idea.isManual === true;
+            
+            const isCurrentUserIdea = userEmail && (idea.userEmail === userEmail || idea.email === userEmail);
+            
+            const isOldDatabaseData = !idea.hasOwnProperty('isManual');
+
+            return isManualFixedData || isCurrentUserIdea || isOldDatabaseData;
+        });
+
+        res.json(filteredIdeas);
+    } catch (error) {
+        console.error("Error in all-ideas:", error);
+        res.status(500).json([]);
+    }
+});
+
+
+    app.post('/addidea', async (req, res) => {
+        const addIdeaData = req.body
+         
+        if (!addIdeaData.email) {
+        return res.status(400).json({ message: "User email is required!" });
+    }
+
+        const result = await addIdeaCollection.insertOne(addIdeaData)
+        res.json(result)
+    })
+
+
+
 async function run() {
   try {
     await client.connect();
