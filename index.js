@@ -102,6 +102,17 @@ app.delete('/comments/:id', async (req, res) => {
 });
 
 
+app.delete('/ideas/:id', async (req, res) => {
+    try {
+        const { id } = req.params; 
+        const result = await addIdeaCollection.deleteOne({ _id: new ObjectId(id) });
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting idea" });
+    }
+});
+
+
 
 async function run() {
   try {
