@@ -19,6 +19,25 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+ app.get('/myidea', async (req, res) => {
+     try {
+         const email = req.query.email; 
+        
+         if (!email) {
+             return res.status(400).json({ message: "Email query parameter is required" });
+         }
+
+         const result = await addIdeaCollection.find({ email: email }).toArray();
+         res.json(result);
+     } catch (error) {
+         console.error("Error fetching my ideas:", error);
+         res.status(500).json({ message: "Internal Server Error" });
+     }
+ });
+
+ 
+
 async function run() {
   try {
     await client.connect();
