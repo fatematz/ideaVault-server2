@@ -76,6 +76,20 @@ app.get('/user-comments', async (req, res) => {
 });
 
 
+app.get('/comments/:ideaId', async (req, res) => {
+    try {
+        const { ideaId } = req.params; 
+        
+        const result = await commentsCollection.find({ ideaId: ideaId }).toArray();
+        
+        res.json(result);
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+        res.status(500).json({ message: "Error fetching comments" });
+    }
+});
+
+
 
 async function run() {
   try {
