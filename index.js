@@ -36,7 +36,23 @@ const client = new MongoClient(uri, {
      }
  });
 
- 
+
+ app.post('/my-interactions', async (req, res) => {
+    try {
+        const commentData = req.body;
+        console.log("comment", commentData);
+
+        const result = await commentsCollection.insertOne(commentData);
+        
+        res.json({ _id: result.insertedId, ...commentData });
+
+    } catch (error) {
+        console.error("Error saving comment:", error);
+        res.status(500).send({ message: "Internal Server Error" });
+    }
+});
+
+
 
 async function run() {
   try {
