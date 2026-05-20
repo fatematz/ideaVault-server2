@@ -53,6 +53,29 @@ const client = new MongoClient(uri, {
 });
 
 
+app.get('/user-comments', async (req, res) => {
+    try {
+        const email = req.query.email; 
+        
+        if (!email) {
+            return res.status(400).json({ message: "Email query parameter is required" });
+        }
+
+        const result = await commentsCollection.find({
+            $or: [
+                { userEmail: email },
+                { email: email }
+            ]
+        }).sort({ _id: -1 }).toArray();
+        
+        res.json(result);
+    } catch (error) {
+        console.error("Error fetching user comments:", error);
+        res.status(500).json({ message: "Error fetching user comments" });
+    }
+});
+
+
 
 async function run() {
   try {
