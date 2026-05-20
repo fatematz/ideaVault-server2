@@ -113,6 +113,24 @@ app.delete('/ideas/:id', async (req, res) => {
 });
 
 
+app.put('/ideas/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedData = req.body;
+        
+        delete updatedData._id; 
+
+        const result = await addIdeaCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updatedData }
+        );
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Error updating idea" });
+    }
+});
+
+
 
 async function run() {
   try {
