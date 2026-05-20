@@ -90,6 +90,18 @@ app.get('/comments/:ideaId', async (req, res) => {
 });
 
 
+app.delete('/comments/:id', async (req, res) => {
+   try {
+        const { id } = req.params; 
+        const result = await commentsCollection.deleteOne({ _id: new ObjectId(id) });
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting comment" });
+    }
+       
+});
+
+
 
 async function run() {
   try {
