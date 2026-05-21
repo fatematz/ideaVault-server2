@@ -21,7 +21,10 @@ let addIdeaCollection, ideasCollection, commentsCollection;
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
+
+
+        
         const db = client.db("ideaVault");
         
         addIdeaCollection = db.collection("addIdea");
@@ -134,7 +137,7 @@ app.get('/trending-ideas', async (req, res) => {
 });
 
 
-const JWKS = createRemoteJWKSet(new URL("http://localhost:3000/api/auth/jwks"));
+const JWKS = createRemoteJWKSet(new URL(`${process.env.CLIENT_URL}/api/auth/jwks`));
 
 
 app.get('/all-ideas', verifyToken, async (req, res) => {

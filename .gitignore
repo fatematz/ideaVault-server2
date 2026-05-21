@@ -36,3 +36,4 @@ yarn-error.log*
 .classpath
 *.sublime-project
 *.sublime-workspace
+.vercel
