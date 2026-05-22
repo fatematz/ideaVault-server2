@@ -140,13 +140,41 @@ app.patch('/comments/:id', async (req, res) => {
 const JWKS = createRemoteJWKSet(new URL(`${process.env.CLIENT_URL}/api/auth/jwks`));
 
 
-app.get('/all-ideas', verifyToken, async (req, res) => {
+// app.get('/all-ideas', verifyToken, async (req, res) => {
 
 
-    try {
-        const addIdeaData = await addIdeaCollection.find().toArray();
-        const fakeIdeasData = await ideasCollection.find().toArray();
+//     try {
+//         const addIdeaData = await addIdeaCollection.find().toArray();
+//         const fakeIdeasData = await ideasCollection.find().toArray();
         
+//         const sortedUserIdeas = addIdeaData.sort((a, b) => {
+//             return new ObjectId(b._id).getTimestamp() - new ObjectId(a._id).getTimestamp();
+//         });
+
+//         const allData = [...sortedUserIdeas, ...fakeIdeasData];
+//         res.json(allData);
+//     } catch (error) {
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// });
+
+
+
+app.get('/all-ideas', verifyToken, async (req, res) => {
+    try {
+        const search = req.query.search || '';
+        const regex = new RegExp(search, 'i');
+
+        const query = search ? {
+            $or: [
+                { title: regex },
+                { category: regex }
+            ]
+        } : {};
+
+        const addIdeaData = await addIdeaCollection.find(query).toArray();
+        const fakeIdeasData = await ideasCollection.find(query).toArray();
+
         const sortedUserIdeas = addIdeaData.sort((a, b) => {
             return new ObjectId(b._id).getTimestamp() - new ObjectId(a._id).getTimestamp();
         });
