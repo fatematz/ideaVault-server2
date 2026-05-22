@@ -24,7 +24,7 @@ async function run() {
         // await client.connect();
 
 
-        
+
         const db = client.db("ideaVault");
         
         addIdeaCollection = db.collection("addIdea");
@@ -130,11 +130,11 @@ app.patch('/comments/:id', async (req, res) => {
     res.json(result);
 });
 
-app.get('/trending-ideas', async (req, res) => {
-    const userIdeas = await addIdeaCollection.find().sort({ _id: -1 }).toArray();
-    const fakeIdeas = await ideasCollection.find().toArray();
-    res.json([...userIdeas, ...fakeIdeas].slice(-6).reverse());
-});
+// app.get('/trending-ideas', async (req, res) => {
+//     const userIdeas = await addIdeaCollection.find().sort({ _id: -1 }).toArray();
+//     const fakeIdeas = await ideasCollection.find().toArray();
+//     res.json([...userIdeas, ...fakeIdeas].slice(-6).reverse());
+// });
 
 
 const JWKS = createRemoteJWKSet(new URL(`${process.env.CLIENT_URL}/api/auth/jwks`));
@@ -156,6 +156,15 @@ app.get('/all-ideas', verifyToken, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
     }
+});
+
+
+app.get('/trending-ideas', async (req, res) => {  //
+    const limit = parseInt(req.query.limit) || 6;
+    const userIdeas = await addIdeaCollection.find().sort({ _id: -1 }).toArray();
+    const fakeIdeas = await ideasCollection.find().toArray();
+    const allIdeas = [...userIdeas, ...fakeIdeas].slice(-limit).reverse();
+    res.json(allIdeas);
 });
 
 
